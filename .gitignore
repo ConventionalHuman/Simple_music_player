@@ -1,0 +1,111 @@
+# Сборочные папки и временные файлы
+build-*/
+*.o
+*.obj
+*.so
+*.a
+*.lib
+*.dll
+*.dylib
+*.exe
+*.app
+*.pch
+*.lo
+*.lai
+*.hi
+
+# Qt специфичные временные файлы
+*.pro.user
+*.qrc.user
+*.autosave
+*.pro.user.*
+*.qrc.user.*
+*.moc
+*.qrc
+*.tmp
+*.rcc
+
+# Временные файлы C++ и IDE
+*.cmake
+CMakeLists.txt.user
+
+# Файлы временных настроек IDE
+*.swp
+*.swo
+.*.kate-swp
+*.idea/
+.vscode/
+
+# Лог файлы и временные конфиги
+*.log
+*.cache
+*.out
+*.bak
+*.manifest
+*.ipch
+*.pyc
+*.pyo
+
+# Установка и релизы
+*.install
+*.dmg
+*.pkg
+*.deb
+*.rpm
+*.tar.gz
+*.tgz
+
+# OS специфичные файлы
+.DS_Store
+Thumbs.db
+
+# Файлы ресурсов, которые сгенерированы компилятором
+moc_*.cpp
+ui_*.h
+qrc_*.cpp
+*.qmake.stash
+*.qmake.cache
+# Игнорирование исполнимых и промежуточных файлов CMake
+/build/
+CMakeCache.txt
+CMakeFiles/
+*.cmake
+
+# Игнорирование сгенерированных файлов и зависимостей Ninja
+*.ninja_deps
+*.ninja_log
+*.qtc/package-manager/*
+*.qtc_clangd/*
+
+# Игнорирование логов и кэш-файлов CMake
+CMakeCache.txt.prev
+CMakeFiles/3.29.3/
+*.yaml
+
+# Игнорирование файлов, созданных автогенератором
+build/*/CMakeFiles/Music_pleer_autogen.dir/
+build/*/CMakeFiles/Music_pleer_autogen.dir/AutoRcc_icons_EWIEGA46WW_*.json
+build/*/CMakeFiles/Music_pleer_autogen.dir/*.lock
+build/*/CMakeFiles/Music_pleer_autogen.dir/Autogen*.txt
+build/*/CMakeFiles/Music_pleer_autogen.dir/*.txt
+build/*/CMakeFiles/Music_pleer_autogen.dir/ParseCache.txt
+build/*/CMakeFiles/Music_pleer_autogen.dir/*.lst_file
+build/*/CMakeFiles/TargetDirectories.txt
+build/*/CMakeFiles/cmake.check_cache
+build/*/CMakeFiles/cmake.verify_globs
+build/*/CMakeFiles/rules.ninja
+
+# Игнорирование файлов, связанных с мок-файлами
+build/*/Music_pleer_autogen/EWIEGA46WW/*.cpp.d
+build/*/Music_pleer_autogen/deps
+build/*/Music_pleer_autogen/moc_predefs.h
+build/*/Music_pleer_autogen/mocs_compilation.cpp
+build/*/Music_pleer_autogen/timestamp
+
+# Игнорирование остальных файлов в папке сборки
+/build/*/build.ninja
+
+# Игнорирование временных файлов
+*.tmp
+*.log
+*.bak
