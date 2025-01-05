@@ -2,6 +2,7 @@
 #define MAINWINDOWPLEER_H
 
 #include <QMainWindow>
+#include <QStringList>
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -16,6 +17,7 @@ class MainWindowPleer : public QMainWindow
 public:
     MainWindowPleer(QWidget *parent = nullptr);
     ~MainWindowPleer();
+    QStringList table_labels;
 
 private:
     Ui::MainWindowPleer *ui;
