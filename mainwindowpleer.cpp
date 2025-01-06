@@ -20,11 +20,11 @@ MainWindowPleer::MainWindowPleer(QWidget *parent)
     ui->setupUi(this);
 
     // Функция для изменения цвета иконки
-    auto updateIconColor = [](const QString &iconPath, QPushButton *button) {
+    auto updateIconColor = [](const QString &iconPath, QPushButton *button, const QString &iconColor) {
         QPixmap pixmap(iconPath);
         QPainter painter(&pixmap);
         painter.setCompositionMode(QPainter::CompositionMode_SourceIn);
-        painter.fillRect(pixmap.rect(), QColor("#8a9197")); // Изменение цвета
+        painter.fillRect(pixmap.rect(), QColor(iconColor)); // Изменение цвета
         painter.end();
         button->setIcon(QIcon(pixmap));
     };
@@ -32,24 +32,158 @@ MainWindowPleer::MainWindowPleer(QWidget *parent)
     setWindowIcon(QIcon(":/Icon/Logo4.png"));
     setWindowTitle("UtochkaKria");
     // Установить фиксированный размер окна
-    setFixedSize(1100, 800);
+    setFixedSize(1100, 550);
     // Установить стандартное окно и отключить возможность изменения состояния
     setWindowFlags(Qt::Window | Qt::MSWindowsFixedSizeDialogHint);
     setStyleSheet("background: #0f1725;");
 
     QMenu *fileMenu = menuBar()->addMenu(tr("Файл")); // Локализуемый текст
     fileMenu->addAction(tr("Открыть"), this, SLOT(onOpen()));
-    fileMenu->addAction(tr("Сохранить"), this, SLOT(onSave()));
+    //fileMenu->addAction(tr("Сохранить"), this, SLOT(onSave()));
     fileMenu->addAction(tr("Выход"), this, SLOT(onExit()));
-
     // Создаем "Вид" и добавляем действия
-    QMenu *viewMenu = menuBar()->addMenu(tr("Вид"));
+    //QMenu *viewMenu = menuBar()->addMenu(tr("Вид"));
     //viewMenu->addAction(tr("Полный экран"), this, SLOT(onFullScreen()));
    // viewMenu->addAction(tr("Показать панель инструментов"), this, SLOT(onToggleToolbar()));
-
     // Создаем "Помощь" и добавляем действия
     QMenu *helpMenu = menuBar()->addMenu(tr("Помощь"));
     helpMenu->addAction(tr("О программе"), this, SLOT(onAbout()));
+
+    //labelTitle
+    ui->labelTitle->setStyleSheet(
+        "QLabel {"                             // Исправлено название класса
+        "    background: transparent;"         // Прозрачный фон
+        "    font-size: 24px;"
+        "    border: none;"
+        "    color: #12cea4;"
+        "    font-weight: bold;"
+        "}"
+        );
+
+    //labelArtist
+    ui->labelArtist->setStyleSheet(
+        "QLabel {"                             // Исправлено название класса
+        "    background: transparent;"         // Прозрачный фон
+        "    font-size: 16px;"
+        "    border: none;"
+        "    color: #ffffff;"
+        "    font-weight: bold;"
+        "}"
+        );
+
+    //labelBegin
+    ui->LabelBegin->setStyleSheet(
+        "QLabel {"                             // Исправлено название класса
+        "    background: transparent;"         // Прозрачный фон
+        "    color: #8a9197;"
+        "}"
+        );
+
+    //labelEnd
+    ui->labelEnd->setStyleSheet(
+        "QLabel {"                             // Исправлено название класса
+        "    background: transparent;"         // Прозрачный фон
+        "    color: #8a9197;"
+        "}"
+        );
+
+    //pushButtonPlay
+    ui->pushButtonPlay->setStyleSheet(
+        "QPushButton {"
+        "    background: transparent;"    // Прозрачный фон
+        "    border: none;"               // Без рамки
+        "}");
+    ui->pushButtonPlay->setFixedSize(34,34);
+    ui->pushButtonPlay->setIconSize(QSize(34,34));
+    updateIconColor(":/Icon/play.png",ui->pushButtonPlay, "#12cea4");
+
+    //pushButtonNext
+    ui->pushButtonNext->setStyleSheet(
+        "QPushButton {"
+        "    background: transparent;"    // Прозрачный фон
+        "    border: none;"               // Без рамки
+        "}");
+    ui->pushButtonNext->setFixedSize(34,34);
+    ui->pushButtonNext->setIconSize(QSize(34,34));
+    updateIconColor(":/Icon/next.png",ui->pushButtonNext, "#8a9197");
+
+    //pushButtonPrev
+    ui->pushButtonPrev->setStyleSheet(
+        "QPushButton {"
+        "    background: transparent;"    // Прозрачный фон
+        "    border: none;"               // Без рамки
+        "}");
+    ui->pushButtonPrev->setFixedSize(34,34);
+    ui->pushButtonPrev->setIconSize(QSize(34,34));
+    updateIconColor(":/Icon/previous.png",ui->pushButtonPrev, "#8a9197");
+
+    //pushButtonCircle
+    ui->pushButtonCircle->setStyleSheet(
+        "QPushButton {"
+        "    background: transparent;"    // Прозрачный фон
+        "    border: none;"               // Без рамки
+        "}");
+    ui->pushButtonCircle->setFixedSize(34,34);
+    ui->pushButtonCircle->setIconSize(QSize(34,34));
+    updateIconColor(":/Icon/return.png",ui->pushButtonCircle, "#8a9197");
+
+    //pushButtonRandom
+    ui->pushButtonRandom->setStyleSheet(
+        "QPushButton {"
+        "    background: transparent;"    // Прозрачный фон
+        "    border: none;"               // Без рамки
+        "}");
+    ui->pushButtonRandom->setFixedSize(34,34);
+    ui->pushButtonRandom->setIconSize(QSize(34,34));
+    updateIconColor(":/Icon/random.png",ui->pushButtonRandom, "#8a9197");
+
+    //horizontalSlider
+    ui->horizontalSlider->setStyleSheet(
+        "QSlider {"
+        "    background: #8a9197;"  // Цвет остальной части полосы (не заполненной)
+        "    border: none;"
+        "    height: 6px;"  // Размер полосы
+        "    border-radius: 2px;"  // Скругление краев полосы
+        "}"
+        "QSlider::sub-page:horizontal {"
+        "    background: #12cea4;"  // Заполненная часть слайдера
+        "    border: none;"
+        "    height: 6px;"  // Размер заполненной части
+        "    border-radius: 2px;"  // Скругление для заполненной области
+        "}"
+        "QSlider::handle:horizontal {"
+        "    background: #12cea4;"
+        " height: 6px;"  // Высота бегунка
+        "    border-radius: 2px;"
+        "}"
+        );
+
+
+    // Фиксация размера framePleer
+    ui->framePleer->setFixedSize(550, 476);
+    // Создаем QLabel для фона
+    QLabel *backgroundLabel = new QLabel(ui->framePleer); // Для фона
+    QPixmap pixmap(":/Images/jinx.jpg");
+    backgroundLabel->setPixmap(pixmap);
+    backgroundLabel->setAlignment(Qt::AlignCenter);
+    // Устанавливаем QLabel как фоновый элемент, растягиваем по всему фрейму
+    backgroundLabel->setGeometry(0, 0, ui->framePleer->width(), ui->framePleer->height());
+    // Применяем полупрозрачность через QGraphicsOpacityEffect только к изображению
+    QGraphicsOpacityEffect *effect = new QGraphicsOpacityEffect(this);
+    effect->setOpacity(0.1);  // Задаем уровень прозрачности
+    backgroundLabel->setGraphicsEffect(effect);
+    // Устанавливаем атрибут для игнорирования кликов
+    backgroundLabel->setAttribute(Qt::WA_TransparentForMouseEvents);
+    // Поднимаем QLabel на задний план, чтобы фон был "позади"
+    backgroundLabel->raise();
+    // Устанавливаем стиль фрейма для остальных элементов
+    ui->framePleer->setStyleSheet(
+        "QFrame {"
+        "    border: none;" // Убираем рамки фрейма
+        "}"
+        );
+    // Включаем возможность работы с другими виджетами
+    ui->framePleer->setAutoFillBackground(true);
 
     //pushButtonSearch
     ui->pushButtonSearch->setStyleSheet(
@@ -59,25 +193,9 @@ MainWindowPleer::MainWindowPleer(QWidget *parent)
         "}"
         );
     //фиксация размера кнопки поиска
-    ui->pushButtonSearch->setFixedSize(45,35);
-    ui->pushButtonSearch->setIcon(QIcon(":/Icon/icon_search.png"));
-    updateIconColor(":/Icon/icon_search.png",ui->pushButtonSearch);
-
-    //QFramePleer
-    // Создаём эффект прозрачности
-    QGraphicsOpacityEffect *effect = new QGraphicsOpacityEffect(this);
-    effect->setOpacity(0.2); // Устанавливаем уровень прозрачности (0.0 до 1.0)
-    ui->framePleer->setGraphicsEffect(effect);// Применяем эффект к фрейму
-    ui->framePleer->setStyleSheet(
-        "QFrame {"
-        "    background-image: url(:/Images/jinx.jpg);"  // Замените путь на правильный
-        "    background-repeat: no-repeat;"                   // Без повторения
-        "    background-position: center;"                    // Центрирование изображения
-        "    background-color: transparent;"                  // Прозрачный фон (если нужно)
-        "}"
-        );
-    //фиксация размера framePleer
-    ui->framePleer->setFixedSize(550,726);
+    ui->pushButtonSearch->setFixedSize(34,34);
+    ui->pushButtonSearch->setIconSize(QSize(34,34));
+    updateIconColor(":/Icon/icon_search.png",ui->pushButtonSearch, "#8a9197");
 
     // LineEditSearch
     ui->lineEditSearch->setStyleSheet(
@@ -104,6 +222,7 @@ MainWindowPleer::MainWindowPleer(QWidget *parent)
     ui->tableWidgetSongs->setColumnCount(4);
     ui->tableWidgetSongs->setHorizontalHeaderLabels(table_labels);
     ui->tableWidgetSongs->verticalHeader()->hide();
+    ui->tableWidgetSongs->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     // Отключение заголовков таблицы
     ui->tableWidgetSongs->horizontalHeader()->setSectionsClickable(false);
 
@@ -124,9 +243,6 @@ MainWindowPleer::MainWindowPleer(QWidget *parent)
         "QTableWidget::item {"
         "    border-bottom: 1px solid #484c55;" // Добавляем только нижнюю линию
         "}"
-       /* "QTableWidget::item:hover {"
-        "    background-color: #12cea4;"  // Цвет строки при наведении
-        "}"*/
         "QHeaderView::section {"
         "    background: transparent;"
         "    font-size: 14px;"
@@ -134,10 +250,39 @@ MainWindowPleer::MainWindowPleer(QWidget *parent)
         "    color: #12cea4;"
         "    border: none;" // Убираем вертикальные линии заголовков
         "} "
+
+        /* Стиль для вертикального скроллбара */
+        "QScrollBar:vertical {"
+        "    border: none;"
+        "    background: #f1f1f1;"
+        "    width: 12px;"
+        "    margin: 0px 3px 0 3px;"
+        "}"
+        "QScrollBar::handle:vertical {"
+        "    background: #12cea4;"  // Цвет ползунка
+        "    min-height: 20px;"
+        "    border-radius: 6px;"
+        "}"
+        "QScrollBar::handle:vertical:hover {"
+        "    background: #16d8b1;"  // Цвет ползунка при наведении
+        "}"
+        "QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {"
+        "    background: none;"
+        "    border: none;"
+        "    height: 0px;"
+        "    width: 0px;"
+        "}"
+        "QScrollBar::up-arrow:vertical, QScrollBar::down-arrow:vertical {"
+        "    background: none;"
+        "    border: none;"
+        "    height: 0px;"
+        "    width: 0px;"
+        "}"
         );
 
+
     // Добавление строк с кнопкой Play/Pause
-    for (int i = 0; i < 10; ++i) {  // Пример на 10 строк
+    for (int i = 0; i < 40; ++i) {  // Пример на 10 строк
         ui->tableWidgetSongs->insertRow(i);
 
         // Создание кнопки и установка иконки
@@ -152,18 +297,16 @@ MainWindowPleer::MainWindowPleer(QWidget *parent)
 
 
         // Применяем начальный цвет для иконки play
-        updateIconColor(":/Icon/play.png", playButton);
+        updateIconColor(":/Icon/play.png", playButton,"#8a9197");
 
         // Логика изменения иконки Play/Pause
         QObject::connect(playButton, &QPushButton::clicked, [playButton, updateIconColor]() {
             if (playButton->icon().name() == ":/Icon/play.png") {
                 // Меняем иконку на паузу и обновляем цвет
-                playButton->setIcon(QIcon(":/Icon/pause.png"));
-                updateIconColor(":/Icon/pause.png", playButton);
+                updateIconColor(":/Icon/pause.png", playButton,"#8a9197");
             } else {
                 // Меняем иконку на воспроизведение и обновляем цвет
-                playButton->setIcon(QIcon(":/Icon/play.png"));
-                updateIconColor(":/Icon/play.png", playButton);
+                updateIconColor(":/Icon/play.png", playButton,"#8a9197");
             }
         });
 
