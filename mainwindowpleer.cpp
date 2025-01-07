@@ -14,6 +14,8 @@
 #include <QPainter>
 #include <QTime>
 #include <QDebug>
+#include <QFileDialog>
+#include <QDir>
 
 MainWindowPleer::MainWindowPleer(QWidget *parent)
     : QMainWindow(parent)
@@ -352,7 +354,27 @@ void MainWindowPleer::updateIconColor(const QString &iconPath, QPushButton *butt
 }
 
 void MainWindowPleer::onOpen() {
-    QMessageBox::information(this, tr("Открыть"), tr("Gojo Satoru прибыл..."));
+    // Открываем проводник для выбора каталога
+    QString directory = QFileDialog::getExistingDirectory(this, tr("Выберите папку с музыкой"));
+
+    if (directory.isEmpty()) {
+        return; // Если каталог не выбран, выходим
+    }
+
+    // Получаем список всех аудиофайлов в каталоге (поддерживаемые форматы: .mp3, .wav, .flac и другие)
+    QDir dir(directory);
+    QStringList filters;
+    filters << "*.mp3" << "*.wav" << "*.flac" << "*.aac"; // Пример поддерживаемых форматов
+    QStringList files = dir.entryList(filters, QDir::Files);
+
+    // Если нет файлов, выводим сообщение и выходим
+    if (files.isEmpty()) {
+        QMessageBox::information(this, tr("Нет аудио файлов"), tr("В выбранном каталоге нет подходящих аудиофайлов."));
+        return;
+    }
+
+    // Заполняем таблицу треками из выбранного каталога
+    //addTrackInTable(); // Передаем список аудиофайлов
 }
 
 void MainWindowPleer::onExit() {

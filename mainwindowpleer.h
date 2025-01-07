@@ -1,5 +1,5 @@
-#ifndef MAINWINDOWPLEER_H
-#define MAINWINDOWPLEER_H
+#ifndef MAINWINDOWPLAYER_H
+#define MAINWINDOWPLAYER_H
 
 #include <QMainWindow>
 #include <QStringList>
@@ -30,4 +30,4 @@ protected slots:
     void onExit();
     void onAbout();
 };
-#endif // MAINWINDOWPLEER_H
+#endif // MAINWINDOWPLAYER_H
