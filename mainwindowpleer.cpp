@@ -1,6 +1,7 @@
 #include "mainwindowpleer.h"
 #include "./ui_mainwindowpleer.h"
 #include "HighlightDelegate.h"
+#include "HoverButton.h"
 #include <QMenu>
 #include <QMenuBar>
 #include <QAction>
@@ -12,22 +13,13 @@
 #include <QTableWidget>
 #include <QPainter>
 #include <QTime>
+#include <QDebug>
 
 MainWindowPleer::MainWindowPleer(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindowPleer)
 {
     ui->setupUi(this);
-
-    // Функция для изменения цвета иконки
-    auto updateIconColor = [](const QString &iconPath, QPushButton *button, const QString &iconColor) {
-        QPixmap pixmap(iconPath);
-        QPainter painter(&pixmap);
-        painter.setCompositionMode(QPainter::CompositionMode_SourceIn);
-        painter.fillRect(pixmap.rect(), QColor(iconColor)); // Изменение цвета
-        painter.end();
-        button->setIcon(QIcon(pixmap));
-    };
     //mainWindow
     setWindowIcon(QIcon(":/Icon/Logo4.png"));
     setWindowTitle("UtochkaKria");
@@ -39,13 +31,7 @@ MainWindowPleer::MainWindowPleer(QWidget *parent)
 
     QMenu *fileMenu = menuBar()->addMenu(tr("Файл")); // Локализуемый текст
     fileMenu->addAction(tr("Открыть"), this, SLOT(onOpen()));
-    //fileMenu->addAction(tr("Сохранить"), this, SLOT(onSave()));
     fileMenu->addAction(tr("Выход"), this, SLOT(onExit()));
-    // Создаем "Вид" и добавляем действия
-    //QMenu *viewMenu = menuBar()->addMenu(tr("Вид"));
-    //viewMenu->addAction(tr("Полный экран"), this, SLOT(onFullScreen()));
-   // viewMenu->addAction(tr("Показать панель инструментов"), this, SLOT(onToggleToolbar()));
-    // Создаем "Помощь" и добавляем действия
     QMenu *helpMenu = menuBar()->addMenu(tr("Помощь"));
     helpMenu->addAction(tr("О программе"), this, SLOT(onAbout()));
 
@@ -158,9 +144,6 @@ MainWindowPleer::MainWindowPleer(QWidget *parent)
         "}"
         );
 
-
-    // Фиксация размера framePleer
-    ui->framePleer->setFixedSize(550, 476);
     // Создаем QLabel для фона
     QLabel *backgroundLabel = new QLabel(ui->framePleer); // Для фона
     QPixmap pixmap(":/Images/jinx.jpg");
@@ -176,6 +159,9 @@ MainWindowPleer::MainWindowPleer(QWidget *parent)
     backgroundLabel->setAttribute(Qt::WA_TransparentForMouseEvents);
     // Поднимаем QLabel на задний план, чтобы фон был "позади"
     backgroundLabel->raise();
+
+    // Фиксация размера framePleer
+    ui->framePleer->setFixedSize(550, 476);
     // Устанавливаем стиль фрейма для остальных элементов
     ui->framePleer->setStyleSheet(
         "QFrame {"
@@ -212,7 +198,6 @@ MainWindowPleer::MainWindowPleer(QWidget *parent)
         "    color: #8a9197;"
         "}"
         );
-
     // Установка текста-подсказки
     ui->lineEditSearch->setPlaceholderText("Поиск");
 
@@ -225,13 +210,14 @@ MainWindowPleer::MainWindowPleer(QWidget *parent)
     ui->tableWidgetSongs->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     // Отключение заголовков таблицы
     ui->tableWidgetSongs->horizontalHeader()->setSectionsClickable(false);
-
-    // Установка растяжения колонок
-    ui->tableWidgetSongs->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-
+    // Установка ширины колонок
+    ui->tableWidgetSongs->setColumnWidth(0,50);
+    ui->tableWidgetSongs->setColumnWidth(1,190);
+    ui->tableWidgetSongs->setColumnWidth(2,190);
+    ui->tableWidgetSongs->setColumnWidth(3,50);
+    ui->tableWidgetSongs->setFocusPolicy(Qt::NoFocus);
     // Удаление вертикальных линий
     ui->tableWidgetSongs->setShowGrid(false);
-
     // Стиль таблицы
     ui->tableWidgetSongs->setStyleSheet(
         "QTableWidget {"
@@ -279,48 +265,17 @@ MainWindowPleer::MainWindowPleer(QWidget *parent)
         "    width: 0px;"
         "}"
         );
+    addTrackInTable();
+    disableColomTable();
+}
 
+MainWindowPleer::~MainWindowPleer()
+{
+    delete ui;
+}
 
-    // Добавление строк с кнопкой Play/Pause
-    for (int i = 0; i < 40; ++i) {  // Пример на 10 строк
-        ui->tableWidgetSongs->insertRow(i);
-
-        // Создание кнопки и установка иконки
-        QPushButton *playButton = new QPushButton;
-        playButton->setIcon(QIcon(":/Icon/play.png")); // Изначальная иконка
-        playButton->setStyleSheet(
-            "QPushButton {"
-            "    background: transparent;"
-            "    border: none;"
-            "} "
-            );
-
-
-        // Применяем начальный цвет для иконки play
-        updateIconColor(":/Icon/play.png", playButton,"#8a9197");
-
-        // Логика изменения иконки Play/Pause
-        QObject::connect(playButton, &QPushButton::clicked, [playButton, updateIconColor]() {
-            if (playButton->icon().name() == ":/Icon/play.png") {
-                // Меняем иконку на паузу и обновляем цвет
-                updateIconColor(":/Icon/pause.png", playButton,"#8a9197");
-            } else {
-                // Меняем иконку на воспроизведение и обновляем цвет
-                updateIconColor(":/Icon/play.png", playButton,"#8a9197");
-            }
-        });
-
-        // Добавляем кнопку в ячейку первой колонки
-        ui->tableWidgetSongs->setCellWidget(i, 0, playButton);
-
-        // Добавляем содержимое в остальные колонки
-        ui->tableWidgetSongs->setItem(i, 1, new QTableWidgetItem("Название трека " + QString::number(i + 1)));
-        ui->tableWidgetSongs->setItem(i, 2, new QTableWidgetItem("Исполнитель " + QString::number(i + 1)));
-        // Время исполнения (простой пример)
-        QTime time(0, 0, 0);
-        time = time.addSecs(i * 200); // добавление секунд
-        ui->tableWidgetSongs->setItem(i, 3, new QTableWidgetItem(time.toString("mm:ss")));
-    }
+void MainWindowPleer::disableColomTable()
+{
     int rowCount = ui->tableWidgetSongs->rowCount();
     int columnCount = ui->tableWidgetSongs->columnCount();
 
@@ -336,54 +291,72 @@ MainWindowPleer::MainWindowPleer(QWidget *parent)
             item->setTextAlignment(Qt::AlignCenter);
         }
     }
-    ui->tableWidgetSongs->setMouseTracking(true); // Обязательно для получения событий cellEntered
+}
 
-    // Установка делегата после настройки таблицы
+void MainWindowPleer::addTrackInTable()
+{
     HighlightDelegate *highlightDelegate = new HighlightDelegate(ui->tableWidgetSongs, this);
     ui->tableWidgetSongs->setItemDelegate(highlightDelegate);
+    for (int i = 0; i < 40; ++i) {
+        ui->tableWidgetSongs->insertRow(i);
 
+        HoverButton *playButton = new HoverButton(i, this); // Привязываем строку
+        playButton->setIcon(QIcon(":/Icon/play.png"));
+        playButton->setFocusPolicy(Qt::NoFocus);
+
+        playButton->setStyleSheet(
+            "QPushButton {"
+            "    background: transparent;"
+            "    border: none;"
+            "} "
+            );
+        // Применяем начальный цвет для иконки play
+        updateIconColor(":/Icon/play.png", playButton,"#8a9197");
+
+        connect(playButton, &HoverButton::hovered, this, [=](int row) {
+            highlightDelegate->setHoveredRow(row); // Передаем строку в делегат
+        });
+
+        bool isPlayState = true;
+
+        connect(playButton, &QPushButton::clicked, [this, playButton, &isPlayState]() {
+            QString iconPath = isPlayState ? ":/Icon/pause.png" : ":/Icon/play.png";
+            updateIconColor(iconPath, playButton, "#8a9197"); // Функция будет доступна
+            isPlayState = !isPlayState;  // Переключаем состояние
+        });
+
+        ui->tableWidgetSongs->setCellWidget(i, 0, playButton);
+        ui->tableWidgetSongs->setItem(i, 1, new QTableWidgetItem("Название трека " + QString::number(i + 1)));
+        ui->tableWidgetSongs->setItem(i, 2, new QTableWidgetItem("Исполнитель " + QString::number(i + 1)));
+        QTime time(0, 0);
+        time = time.addSecs(i * 200);
+        ui->tableWidgetSongs->setItem(i, 3, new QTableWidgetItem(time.toString("mm:ss")));
+    }
+    ui->tableWidgetSongs->setMouseTracking(true); // Обязательно для получения событий cellEntered
     // Подключение события наведения мыши
     connect(ui->tableWidgetSongs, &QTableWidget::cellEntered, this, [=](int row, int column) {
         Q_UNUSED(column); // Обрабатываем только строку
         highlightDelegate->setHoveredRow(row);
     });
 
-    // Реакция на изменение текста (опционально)
-   /* connect(ui->lineEditSearch, &QLineEdit::textChanged, this, [this]() {
-        if (ui->lineEditSearch->text().isEmpty()) {
-            ui->lineEditSearch->setPlaceholderText("Поиск");
-        }
-    });*/
 }
 
-MainWindowPleer::~MainWindowPleer()
+void MainWindowPleer::updateIconColor(const QString &iconPath, QPushButton *button, const QString &iconColor)
 {
-    delete ui;
+    QPixmap pixmap(iconPath);
+    QPainter painter(&pixmap);
+    painter.setCompositionMode(QPainter::CompositionMode_SourceIn);
+    painter.fillRect(pixmap.rect(), QColor(iconColor)); // Изменение цвета
+    painter.end();
+    button->setIcon(QIcon(pixmap));
 }
 
 void MainWindowPleer::onOpen() {
     QMessageBox::information(this, tr("Открыть"), tr("Gojo Satoru прибыл..."));
 }
 
-void MainWindowPleer::onSave() {
-    QMessageBox::information(this, tr("Сохранить"), tr("Gojo Satoru запечатан..."));
-}
-
 void MainWindowPleer::onExit() {
     close(); // Закрыть приложение
-}
-
-void MainWindowPleer::onFullScreen() {
-    if (isFullScreen()) {
-        showNormal(); // Выйти из полного экрана
-    } else {
-        showFullScreen(); // Войти в полноэкранный режим
-    }
-}
-
-void MainWindowPleer::onToggleToolbar() {
-    // Предположим, у вас есть toolbar с именем "toolBar"
-    //ui->toolBar->setVisible(!ui->toolBar->isVisible());
 }
 
 void MainWindowPleer::onAbout() {
