@@ -297,15 +297,18 @@ void MainWindowPleer::disableColomTable()
 
 void MainWindowPleer::addTrackInTable()
 {
+    // Создаем объект HighlightDelegate для подсветки строки
     HighlightDelegate *highlightDelegate = new HighlightDelegate(ui->tableWidgetSongs, this);
-    ui->tableWidgetSongs->setItemDelegate(highlightDelegate);
+    ui->tableWidgetSongs->setItemDelegate(highlightDelegate);// Назначаем делегат для таблицы
     for (int i = 0; i < 15; ++i) {
         ui->tableWidgetSongs->insertRow(i);
 
+        // Создаем кнопку play для строки
         HoverButton *playButton = new HoverButton(i, this); // Привязываем строку
         playButton->setIcon(QIcon(":/Icon/play.png"));
         playButton->setFocusPolicy(Qt::NoFocus);
 
+        // настраиваем стиль для кнопки
         playButton->setStyleSheet(
             "QPushButton {"
             "    background: transparent;"
@@ -315,30 +318,31 @@ void MainWindowPleer::addTrackInTable()
         // Применяем начальный цвет для иконки play
         updateIconColor(":/Icon/play.png", playButton,"#8a9197");
 
+        // Подключаем сигнал hovered кнопки к методу делегата для подсветки строки
         connect(playButton, &HoverButton::hovered, this, [=](int row) {
             highlightDelegate->setHoveredRow(row); // Передаем строку в делегат
         });
 
-        bool isPlayState = true;
+        bool isPlayState = true;// Флаг состояния (true - play, false - pause)
 
         connect(playButton, &QPushButton::clicked, [this, playButton, &isPlayState]() {
             QString iconPath = isPlayState ? ":/Icon/pause.png" : ":/Icon/play.png";
-            updateIconColor(iconPath, playButton, "#8a9197"); // Функция будет доступна
+            updateIconColor(iconPath, playButton, "#8a9197"); // Обновляем иконку
             isPlayState = !isPlayState;  // Переключаем состояние
         });
 
-        ui->tableWidgetSongs->setCellWidget(i, 0, playButton);
+        ui->tableWidgetSongs->setCellWidget(i, 0, playButton);// Устанавливаем кнопку в первую ячейку строки
         ui->tableWidgetSongs->setItem(i, 1, new QTableWidgetItem("Название трека " + QString::number(i + 1)));
         ui->tableWidgetSongs->setItem(i, 2, new QTableWidgetItem("Исполнитель " + QString::number(i + 1)));
         QTime time(0, 0);
-        time = time.addSecs(i * 200);
+        time = time.addSecs(i * 200);// Примерная длительность треков
         ui->tableWidgetSongs->setItem(i, 3, new QTableWidgetItem(time.toString("mm:ss")));
     }
     ui->tableWidgetSongs->setMouseTracking(true); // Обязательно для получения событий cellEntered
     // Подключение события наведения мыши
     connect(ui->tableWidgetSongs, &QTableWidget::cellEntered, this, [=](int row, int column) {
         Q_UNUSED(column); // Обрабатываем только строку
-        highlightDelegate->setHoveredRow(row);
+        highlightDelegate->setHoveredRow(row);//устанавливаем подсветку для строки
     });
 
 }
@@ -347,10 +351,10 @@ void MainWindowPleer::updateIconColor(const QString &iconPath, QPushButton *butt
 {
     QPixmap pixmap(iconPath);
     QPainter painter(&pixmap);
-    painter.setCompositionMode(QPainter::CompositionMode_SourceIn);
-    painter.fillRect(pixmap.rect(), QColor(iconColor)); // Изменение цвета
+    painter.setCompositionMode(QPainter::CompositionMode_SourceIn);// Устанавливаем режим наложения SourceIn
+    painter.fillRect(pixmap.rect(), QColor(iconColor)); // Заполняем весь pixmap цветом, указанным в iconColor
     painter.end();
-    button->setIcon(QIcon(pixmap));
+    button->setIcon(QIcon(pixmap));// Устанавливаем измененный pixmap в качестве иконки для кнопки
 }
 
 void MainWindowPleer::onOpen() {

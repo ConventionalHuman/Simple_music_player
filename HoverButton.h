@@ -11,7 +11,7 @@ public:
         : QPushButton(parent), m_row(row) {}
 
 signals:
-    void hovered(int row);
+    void hovered(int row);// Сигнал, который излучается при наведении на кнопку
 
 protected:
     void enterEvent(QEnterEvent *event) override {
