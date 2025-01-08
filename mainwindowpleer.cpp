@@ -299,7 +299,7 @@ void MainWindowPleer::addTrackInTable()
 {
     HighlightDelegate *highlightDelegate = new HighlightDelegate(ui->tableWidgetSongs, this);
     ui->tableWidgetSongs->setItemDelegate(highlightDelegate);
-    for (int i = 0; i < 40; ++i) {
+    for (int i = 0; i < 15; ++i) {
         ui->tableWidgetSongs->insertRow(i);
 
         HoverButton *playButton = new HoverButton(i, this); // Привязываем строку
