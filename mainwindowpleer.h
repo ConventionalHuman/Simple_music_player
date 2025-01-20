@@ -22,6 +22,7 @@ public:
     void disableColomTable();
     void addTrackInTable();
     void updateIconColor(const QString &iconPath, QPushButton *button, const QString &iconColor);
+    void initializeDatabase();
 
 private:
     Ui::MainWindowPleer *ui;

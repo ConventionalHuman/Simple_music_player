@@ -16,6 +16,9 @@
 #include <QDebug>
 #include <QFileDialog>
 #include <QDir>
+#include <QSqlDatabase>
+#include <QSqlQuery>
+#include <QSqlError>
 
 MainWindowPleer::MainWindowPleer(QWidget *parent)
     : QMainWindow(parent)
@@ -357,7 +360,22 @@ void MainWindowPleer::updateIconColor(const QString &iconPath, QPushButton *butt
     button->setIcon(QIcon(pixmap));// Устанавливаем измененный pixmap в качестве иконки для кнопки
 }
 
+void MainWindowPleer::initializeDatabase()
+{
+    QString dbPath = QCoreApplication::applicationDirPath() + "/DbMusicPlayer.db";
+    // Создаем подключение
+    QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
+    db.setDatabaseName(dbPath);
+
+    if (!db.open()) {
+        qDebug() << "Failed to connect to the database:" << db.lastError().text();
+        return;
+    }
+    qDebug() << "Successfully connected to the SQLite database.";
+}
+
 void MainWindowPleer::onOpen() {
+    initializeDatabase();
     // Открываем проводник для выбора каталога
     QString directory = QFileDialog::getExistingDirectory(this, tr("Выберите папку с музыкой"));
 

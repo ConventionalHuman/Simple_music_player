@@ -28,7 +28,7 @@ build-*/
 # Временные файлы C++ и IDE
 *.cmake
 CMakeLists.txt.user
-
+/Database/*.sqbpro
 # Файлы временных настроек IDE
 *.swp
 *.swo
