@@ -367,6 +367,14 @@ void MainWindowPleer::addTrackInTable(const QStringList &files)
         ui->tableWidgetSongs->setItem(row, 3, new QTableWidgetItem(duration));
     }
 
+<<<<<<< HEAD
+=======
+    // Устанавливаем подсветку строки при наведении
+    ui->tableWidgetSongs->setMouseTracking(true);
+    connect(ui->tableWidgetSongs, &QTableWidget::cellEntered, this, [=](int row) {
+        highlightDelegate->setHoveredRow(row);
+    });
+>>>>>>> e67aad2631a59a9a95840a7ef2fb283fc7637c0e
     ui->tableWidgetSongs->setMouseTracking(true); // Обязательно для получения событий cellEntered
     // Подключение события наведения мыши
     connect(ui->tableWidgetSongs, &QTableWidget::cellEntered, this, [=](int row) {
