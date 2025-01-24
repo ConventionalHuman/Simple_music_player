@@ -4,6 +4,7 @@
 #include <QMainWindow>
 #include <QStringList>
 #include <QPushButton>
+#include <QLabel>
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -18,14 +19,14 @@ class MainWindowPleer : public QMainWindow
 public:
     MainWindowPleer(QWidget *parent = nullptr);
     ~MainWindowPleer();
-    QStringList table_labels;
     void disableColomTable();
     void addTrackInTable(const QStringList &files);
     void updateIconColor(const QString &iconPath, QPushButton *button, const QString &iconColor);
-    void initializeDatabase();
-
+    void initializeDatabase();//class DbMp
+    void loadCoverArt(const QString &filePath);//class Play
 private:
     Ui::MainWindowPleer *ui;
+    QLabel *backgroundLabel_;
 protected slots:
     void onOpen();
     void onExit();
