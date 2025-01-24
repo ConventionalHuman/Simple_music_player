@@ -25,6 +25,7 @@
 #include <QtMultimedia/qmediaplayer.h>
 #include <QtMultimedia/qmediametadata.h>
 #include <QStandardPaths>
+#include <QImage>
 
 MainWindowPleer::MainWindowPleer(QWidget *parent)
     : QMainWindow(parent)
@@ -156,20 +157,20 @@ MainWindowPleer::MainWindowPleer(QWidget *parent)
         );
 
     // Создаем QLabel для фона
-    QLabel *backgroundLabel = new QLabel(ui->framePleer); // Для фона
+    backgroundLabel_ = new QLabel(ui->framePleer); // Для фона
     QPixmap pixmap(":/Images/jinx.jpg");
-    backgroundLabel->setPixmap(pixmap);
-    backgroundLabel->setAlignment(Qt::AlignCenter);
+    backgroundLabel_->setPixmap(pixmap);
+    backgroundLabel_->setAlignment(Qt::AlignCenter);
     // Устанавливаем QLabel как фоновый элемент, растягиваем по всему фрейму
-    backgroundLabel->setGeometry(0, 0, ui->framePleer->width(), ui->framePleer->height());
+    backgroundLabel_->setGeometry(0, 0, ui->framePleer->width(), ui->framePleer->height());
     // Применяем полупрозрачность через QGraphicsOpacityEffect только к изображению
     QGraphicsOpacityEffect *effect = new QGraphicsOpacityEffect(this);
     effect->setOpacity(0.1);  // Задаем уровень прозрачности
-    backgroundLabel->setGraphicsEffect(effect);
+    backgroundLabel_->setGraphicsEffect(effect);
     // Устанавливаем атрибут для игнорирования кликов
-    backgroundLabel->setAttribute(Qt::WA_TransparentForMouseEvents);
+    backgroundLabel_->setAttribute(Qt::WA_TransparentForMouseEvents);
     // Поднимаем QLabel на задний план, чтобы фон был "позади"
-    backgroundLabel->raise();
+    backgroundLabel_->raise();
 
     // Фиксация размера framePleer
     ui->framePleer->setFixedSize(550, 476);
@@ -225,7 +226,7 @@ MainWindowPleer::MainWindowPleer(QWidget *parent)
     ui->tableWidgetSongs->setColumnWidth(0,50);
     ui->tableWidgetSongs->setColumnWidth(1,190);
     ui->tableWidgetSongs->setColumnWidth(2,190);
-    ui->tableWidgetSongs->setColumnWidth(3,50);
+    ui->tableWidgetSongs->setColumnWidth(3,90);
     ui->tableWidgetSongs->setFocusPolicy(Qt::NoFocus);
     // Удаление вертикальных линий
     ui->tableWidgetSongs->setShowGrid(false);
@@ -366,13 +367,54 @@ void MainWindowPleer::addTrackInTable(const QStringList &files)
         ui->tableWidgetSongs->setItem(row, 2, new QTableWidgetItem(artist));
         ui->tableWidgetSongs->setItem(row, 3, new QTableWidgetItem(duration));
     }
-
     ui->tableWidgetSongs->setMouseTracking(true); // Обязательно для получения событий cellEntered
     // Подключение события наведения мыши
     connect(ui->tableWidgetSongs, &QTableWidget::cellEntered, this, [=](int row) {
         highlightDelegate->setHoveredRow(row);//устанавливаем подсветку для строки
     });
     disableColomTable();
+}
+
+void MainWindowPleer::loadCoverArt(const QString &filePath)
+{
+    QMediaPlayer mediaPlayer;
+    mediaPlayer.setSource(QUrl::fromLocalFile(filePath));
+
+    // Ожидание загрузки метаданных
+    QEventLoop loop;
+    connect(&mediaPlayer, &QMediaPlayer::metaDataChanged, &loop, &QEventLoop::quit);
+    mediaPlayer.play();
+    loop.exec();
+    mediaPlayer.stop();
+
+    // Извлекаем метаданные
+    QMediaMetaData metadata = mediaPlayer.metaData();
+
+    // Печатаем доступные метаданные для отладки
+    for (auto key : metadata.keys()) {
+        qDebug() << "Metadata key:" << key << "Value:" << metadata.value(key);
+    }
+
+    // Проверка наличия миниатюры (обложки)
+    QVariant thumbnailVariant = metadata.value(QMediaMetaData::ThumbnailImage);
+    if (thumbnailVariant.isValid()) {
+        QImage coverImage = thumbnailVariant.value<QImage>();
+        if (!coverImage.isNull()) {
+            qDebug() << "Cover art loaded successfully.";
+            QPixmap coverPixmap = QPixmap::fromImage(coverImage);
+            backgroundLabel_->setPixmap(coverPixmap);
+            backgroundLabel_->setAlignment(Qt::AlignCenter);
+            backgroundLabel_->setScaledContents(true); // Включаем масштабирование
+            backgroundLabel_->setGeometry(0, 0, ui->framePleer->width(), ui->framePleer->height());
+        } else {
+            qDebug() << "Cover art is null.";
+        }
+    } else {
+        qDebug() << "No cover art found.";
+        backgroundLabel_->setPixmap(QPixmap(":/Images/jinx.jpg"));
+        backgroundLabel_->setAlignment(Qt::AlignCenter);
+        backgroundLabel_->setScaledContents(true); // Включаем масштабирование для картинки по умолчанию
+    }
 }
 
 void MainWindowPleer::updateIconColor(const QString &iconPath, QPushButton *button, const QString &iconColor)
@@ -424,6 +466,7 @@ void MainWindowPleer::onOpen() {
     }
 
     addTrackInTable(fullPaths); // Передаем список файлов в метод
+    loadCoverArt(":/Path/to/Music/Faint.mp3");
 }
 
 

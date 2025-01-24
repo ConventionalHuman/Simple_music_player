@@ -40,6 +40,22 @@
         <item>
          <layout class="QHBoxLayout" name="horizontalLayout">
           <item>
+           <spacer name="horizontalSpacer_3">
+            <property name="orientation">
+             <enum>Qt::Orientation::Horizontal</enum>
+            </property>
+            <property name="sizeType">
+             <enum>QSizePolicy::Policy::Fixed</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>20</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item>
            <widget class="QLineEdit" name="lineEditSearch">
             <property name="autoFillBackground">
              <bool>false</bool>
@@ -64,6 +80,22 @@
              </size>
             </property>
            </widget>
+          </item>
+          <item>
+           <spacer name="horizontalSpacer_4">
+            <property name="orientation">
+             <enum>Qt::Orientation::Horizontal</enum>
+            </property>
+            <property name="sizeType">
+             <enum>QSizePolicy::Policy::Fixed</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>20</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
           </item>
          </layout>
         </item>
@@ -99,7 +131,7 @@
            <property name="sizeHint" stdset="0">
             <size>
              <width>20</width>
-             <height>320</height>
+             <height>220</height>
             </size>
            </property>
           </spacer>
@@ -214,7 +246,7 @@
              <property name="sizeHint" stdset="0">
               <size>
                <width>20</width>
-               <height>150</height>
+               <height>250</height>
               </size>
              </property>
             </spacer>
