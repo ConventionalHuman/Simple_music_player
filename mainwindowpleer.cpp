@@ -19,6 +19,12 @@
 #include <QSqlDatabase>
 #include <QSqlQuery>
 #include <QSqlError>
+#include <QtMultimedia/QAudioBufferOutput>
+#include <QtMultimedia/QMediaPlayer>
+#include <QtMultimedia/QMediaMetaData>
+#include <QtMultimedia/qmediaplayer.h>
+#include <QtMultimedia/qmediametadata.h>
+#include <QStandardPaths>
 
 MainWindowPleer::MainWindowPleer(QWidget *parent)
     : QMainWindow(parent)
@@ -270,8 +276,8 @@ MainWindowPleer::MainWindowPleer(QWidget *parent)
         "    width: 0px;"
         "}"
         );
-    addTrackInTable();
-    disableColomTable();
+    //addTrackInTable();
+    //disableColomTable();
 }
 
 MainWindowPleer::~MainWindowPleer()
@@ -298,56 +304,75 @@ void MainWindowPleer::disableColomTable()
     }
 }
 
-void MainWindowPleer::addTrackInTable()
+void MainWindowPleer::addTrackInTable(const QStringList &files)
 {
-    // Создаем объект HighlightDelegate для подсветки строки
-    HighlightDelegate *highlightDelegate = new HighlightDelegate(ui->tableWidgetSongs, this);
-    ui->tableWidgetSongs->setItemDelegate(highlightDelegate);// Назначаем делегат для таблицы
-    for (int i = 0; i < 15; ++i) {
-        ui->tableWidgetSongs->insertRow(i);
-
-        // Создаем кнопку play для строки
-        HoverButton *playButton = new HoverButton(i, this); // Привязываем строку
-        playButton->setIcon(QIcon(":/Icon/play.png"));
-        playButton->setFocusPolicy(Qt::NoFocus);
-
-        // настраиваем стиль для кнопки
-        playButton->setStyleSheet(
-            "QPushButton {"
-            "    background: transparent;"
-            "    border: none;"
-            "} "
-            );
-        // Применяем начальный цвет для иконки play
-        updateIconColor(":/Icon/play.png", playButton,"#8a9197");
-
-        // Подключаем сигнал hovered кнопки к методу делегата для подсветки строки
-        connect(playButton, &HoverButton::hovered, this, [=](int row) {
-            highlightDelegate->setHoveredRow(row); // Передаем строку в делегат
-        });
-
-        bool isPlayState = true;// Флаг состояния (true - play, false - pause)
-
-        connect(playButton, &QPushButton::clicked, [this, playButton, &isPlayState]() {
-            QString iconPath = isPlayState ? ":/Icon/pause.png" : ":/Icon/play.png";
-            updateIconColor(iconPath, playButton, "#8a9197"); // Обновляем иконку
-            isPlayState = !isPlayState;  // Переключаем состояние
-        });
-
-        ui->tableWidgetSongs->setCellWidget(i, 0, playButton);// Устанавливаем кнопку в первую ячейку строки
-        ui->tableWidgetSongs->setItem(i, 1, new QTableWidgetItem("Название трека " + QString::number(i + 1)));
-        ui->tableWidgetSongs->setItem(i, 2, new QTableWidgetItem("Исполнитель " + QString::number(i + 1)));
-        QTime time(0, 0);
-        time = time.addSecs(i * 200);// Примерная длительность треков
-        ui->tableWidgetSongs->setItem(i, 3, new QTableWidgetItem(time.toString("mm:ss")));
+    // Убедимся, что переданный список файлов не пуст
+    if (files.isEmpty()) {
+        return;
     }
+
+    ui->tableWidgetSongs->setRowCount(0); // Очистка таблицы перед добавлением новых треков
+    HighlightDelegate *highlightDelegate = new HighlightDelegate(ui->tableWidgetSongs, this);
+    ui->tableWidgetSongs->setItemDelegate(highlightDelegate);
+
+    for (int i = 0; i < files.size(); ++i) {
+        const QString &filePath = files.at(i);
+
+        // Используем QMediaPlayer для извлечения метаданных
+        QMediaPlayer mediaPlayer;
+        mediaPlayer.setSource(QUrl::fromLocalFile(filePath));
+
+        // Ожидание загрузки метаданных
+        QEventLoop loop;
+        connect(&mediaPlayer, &QMediaPlayer::metaDataChanged, &loop, &QEventLoop::quit);
+        mediaPlayer.play();
+        loop.exec();
+        mediaPlayer.stop();
+
+        // Извлечение метаданных
+        QMediaMetaData metadata = mediaPlayer.metaData();
+        QString title = metadata.stringValue(QMediaMetaData::Title);
+        QString artist = metadata.stringValue(QMediaMetaData::ContributingArtist);
+        QString duration = QTime(0, 0).addMSecs(mediaPlayer.duration()).toString("mm:ss");
+
+        // Устанавливаем значения по умолчанию, если метаданные отсутствуют
+        if (title.isEmpty()) {
+            title = QFileInfo(filePath).baseName(); // Имя файла без расширения
+        }
+        if (artist.isEmpty()) {
+            artist = "Неизвестный исполнитель";
+        }
+
+        // Добавляем строку в таблицу
+        int row = ui->tableWidgetSongs->rowCount();
+        ui->tableWidgetSongs->insertRow(row);
+
+        // Добавляем кнопку Play для каждой строки
+        HoverButton *playButton = new HoverButton(i, this);
+        playButton->setFocusPolicy(Qt::NoFocus);
+        playButton->setStyleSheet("QPushButton { background: transparent; border: none; }");
+
+        // Подключаем сигнал hover для подсветки строки
+        connect(playButton, &HoverButton::hovered, this, [=](int row) {
+            highlightDelegate->setHoveredRow(row);
+        });
+
+        // Кнопка по умолчанию имеет иконку play
+        updateIconColor(":/Icon/play.png", playButton, "#8a9197");
+
+        // Добавляем кнопку в таблицу в ячейку
+        ui->tableWidgetSongs->setCellWidget(row, 0, playButton);
+        ui->tableWidgetSongs->setItem(row, 1, new QTableWidgetItem(title));
+        ui->tableWidgetSongs->setItem(row, 2, new QTableWidgetItem(artist));
+        ui->tableWidgetSongs->setItem(row, 3, new QTableWidgetItem(duration));
+    }
+
     ui->tableWidgetSongs->setMouseTracking(true); // Обязательно для получения событий cellEntered
     // Подключение события наведения мыши
-    connect(ui->tableWidgetSongs, &QTableWidget::cellEntered, this, [=](int row, int column) {
-        Q_UNUSED(column); // Обрабатываем только строку
+    connect(ui->tableWidgetSongs, &QTableWidget::cellEntered, this, [=](int row) {
         highlightDelegate->setHoveredRow(row);//устанавливаем подсветку для строки
     });
-
+    disableColomTable();
 }
 
 void MainWindowPleer::updateIconColor(const QString &iconPath, QPushButton *button, const QString &iconColor)
@@ -376,28 +401,31 @@ void MainWindowPleer::initializeDatabase()
 
 void MainWindowPleer::onOpen() {
     initializeDatabase();
-    // Открываем проводник для выбора каталога
-    QString directory = QFileDialog::getExistingDirectory(this, tr("Выберите папку с музыкой"));
+    QString defaultDir = QStandardPaths::writableLocation(QStandardPaths::MusicLocation); // Каталог "Музыка"
+    QString directory = QFileDialog::getExistingDirectory(this, tr("Выберите папку с музыкой"),defaultDir);
 
     if (directory.isEmpty()) {
-        return; // Если каталог не выбран, выходим
+        return;
     }
 
-    // Получаем список всех аудиофайлов в каталоге (поддерживаемые форматы: .mp3, .wav, .flac и другие)
     QDir dir(directory);
-    QStringList filters;
-    filters << "*.mp3" << "*.wav" << "*.flac" << "*.aac"; // Пример поддерживаемых форматов
+    QStringList filters{"*.mp3", "*.wav", "*.flac", "*.aac"};
     QStringList files = dir.entryList(filters, QDir::Files);
 
-    // Если нет файлов, выводим сообщение и выходим
     if (files.isEmpty()) {
         QMessageBox::information(this, tr("Нет аудио файлов"), tr("В выбранном каталоге нет подходящих аудиофайлов."));
         return;
     }
 
-    // Заполняем таблицу треками из выбранного каталога
-    //addTrackInTable(); // Передаем список аудиофайлов
+    // Формируем полный путь к файлам
+    QStringList fullPaths;
+    for (const QString &file : files) {
+        fullPaths << dir.filePath(file);
+    }
+
+    addTrackInTable(fullPaths); // Передаем список файлов в метод
 }
+
 
 void MainWindowPleer::onExit() {
     close(); // Закрыть приложение

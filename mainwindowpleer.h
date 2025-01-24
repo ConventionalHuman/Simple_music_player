@@ -20,7 +20,7 @@ public:
     ~MainWindowPleer();
     QStringList table_labels;
     void disableColomTable();
-    void addTrackInTable();
+    void addTrackInTable(const QStringList &files);
     void updateIconColor(const QString &iconPath, QPushButton *button, const QString &iconColor);
     void initializeDatabase();
 
