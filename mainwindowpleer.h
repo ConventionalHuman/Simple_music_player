@@ -22,13 +22,8 @@ public:
     void disableColomTable();
     void addTrackInTable(const QStringList &files);
     void updateIconColor(const QString &iconPath, QPushButton *button, const QString &iconColor);
-<<<<<<< HEAD
     void initializeDatabase();//class DbMp
     void loadCoverArt(const QString &filePath);//class Play
-=======
-    void initializeDatabase();
-    void loadCoverArt(const QString &filePath);
->>>>>>> 44431948f53c4a44c4e85e4278d7daa4d5a1d29b
 private:
     Ui::MainWindowPleer *ui;
     QLabel *backgroundLabel_;

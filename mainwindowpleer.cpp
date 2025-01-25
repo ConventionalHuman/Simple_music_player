@@ -230,11 +230,8 @@ MainWindowPleer::MainWindowPleer(QWidget *parent)
     ui->tableWidgetSongs->setColumnWidth(0,50);
     ui->tableWidgetSongs->setColumnWidth(1,190);
     ui->tableWidgetSongs->setColumnWidth(2,190);
-<<<<<<< HEAD
     ui->tableWidgetSongs->setColumnWidth(3,100);
-=======
     ui->tableWidgetSongs->setColumnWidth(3,90);
->>>>>>> 44431948f53c4a44c4e85e4278d7daa4d5a1d29b
     ui->tableWidgetSongs->setFocusPolicy(Qt::NoFocus);
     // Удаление вертикальных линий
     ui->tableWidgetSongs->setShowGrid(false);
@@ -477,11 +474,7 @@ void MainWindowPleer::onOpen() {
     ui->tableWidgetSongs->setColumnHidden(1,false);
     ui->tableWidgetSongs->setColumnHidden(2,false);
     addTrackInTable(fullPaths); // Передаем список файлов в метод
-<<<<<<< HEAD
     //loadCoverArt(":/Path/to/Music/Faint.mp3");
-=======
-    loadCoverArt(":/Path/to/Music/Faint.mp3");
->>>>>>> 44431948f53c4a44c4e85e4278d7daa4d5a1d29b
 }
 
 
