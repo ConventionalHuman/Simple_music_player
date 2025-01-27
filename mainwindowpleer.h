@@ -5,6 +5,7 @@
 #include <QStringList>
 #include <QPushButton>
 #include <QLabel>
+#include "HoverLabel.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -27,6 +28,7 @@ public:
 private:
     Ui::MainWindowPleer *ui;
     QLabel *backgroundLabel_;
+    HoverLabel *playLabel_;
 protected slots:
     void onOpen();
     void onExit();

@@ -1,7 +1,6 @@
 #include "mainwindowpleer.h"
 #include "./ui_mainwindowpleer.h"
 #include "HighlightDelegate.h"
-#include "HoverLabel.h"
 #include <QMenu>
 #include <QMenuBar>
 #include <QAction>
@@ -311,80 +310,67 @@ void MainWindowPleer::disableColomTable()
 
 void MainWindowPleer::addTrackInTable(const QStringList &files)
 {
-    // Убедимся, что переданный список файлов не пуст
     if (files.isEmpty()) {
         return;
     }
 
-    ui->tableWidgetSongs->setRowCount(0); // Очистка таблицы перед добавлением новых треков
+    ui->tableWidgetSongs->setRowCount(0);
     HighlightDelegate *highlightDelegate = new HighlightDelegate(ui->tableWidgetSongs, this);
     ui->tableWidgetSongs->setItemDelegate(highlightDelegate);
 
     for (int i = 0; i < files.size(); ++i) {
         const QString &filePath = files.at(i);
 
-        // Используем QMediaPlayer для извлечения метаданных
+        // Извлечение метаданных
         QMediaPlayer mediaPlayer;
         mediaPlayer.setSource(QUrl::fromLocalFile(filePath));
-
-        // Ожидание загрузки метаданных
         QEventLoop loop;
         connect(&mediaPlayer, &QMediaPlayer::metaDataChanged, &loop, &QEventLoop::quit);
         mediaPlayer.play();
         loop.exec();
         mediaPlayer.stop();
 
-        // Извлечение метаданных
         QMediaMetaData metadata = mediaPlayer.metaData();
         QString title = metadata.stringValue(QMediaMetaData::Title);
         QString artist = metadata.stringValue(QMediaMetaData::ContributingArtist);
         QString duration = QTime(0, 0).addMSecs(mediaPlayer.duration()).toString("mm:ss");
 
-        // Устанавливаем значения по умолчанию, если метаданные отсутствуют
         if (title.isEmpty()) {
-            title = QFileInfo(filePath).baseName(); // Имя файла без расширения
+            title = QFileInfo(filePath).baseName();
         }
         if (artist.isEmpty()) {
             artist = "Неизвестный исполнитель";
         }
 
-        // Добавляем строку в таблицу
         int row = ui->tableWidgetSongs->rowCount();
         ui->tableWidgetSongs->insertRow(row);
 
-        // Создаем кастомный QLabel вместо кнопки
-        HoverLabel *playLabel = new HoverLabel(i, this);
-
-        // Загружаем иконку и настраиваем её
-        QPixmap playIcon(":/Icon/play.png");
-        QPainter painter(&playIcon);
-        painter.setCompositionMode(QPainter::CompositionMode_SourceIn);// Устанавливаем режим наложения SourceIn
-        painter.fillRect(playIcon.rect(), QColor("#8a9197")); // Заполняем весь pixmap цветом, указанным в iconColor
-        painter.end();
-        QPixmap scaledIcon = playIcon.scaled(20, 20, Qt::KeepAspectRatio, Qt::SmoothTransformation); // Масштабируем иконку
-        playLabel->setPixmap(scaledIcon);
-        playLabel->setAlignment(Qt::AlignCenter); // Выравниваем иконку по центру
-        playLabel->setFixedSize(24, 24); // Размер QLabel немного больше, чем у иконки
-
+        // Добавляем HoverLabel
+        playLabel_ = new HoverLabel(i, this);
+        playLabel_->setAlignment(Qt::AlignCenter); // Центровка лейбла по центру
+        playLabel_->setFixedSize(30, 30); // Устанавливаем фиксированный размер
         // Устанавливаем прозрачный фон
-        playLabel->setStyleSheet("QLabel { background: transparent; border: none; }");
+        playLabel_->setStyleSheet("QLabel { background: transparent; border: none; }");
 
-        // Подключаем сигнал hover для подсветки строки
-        connect(playLabel, &HoverLabel::hovered, this, [=](int row) {
-            highlightDelegate->setHoveredRow(row);
+        connect(playLabel_, &HoverLabel::hovered, this, [=](int row) {
+            highlightDelegate->setHoveredRow(row); // Обрабатываем подсветку строки
+            playLabel_->clearFocus();
         });
 
-        // Добавляем QLabel в таблицу в ячейку
-        ui->tableWidgetSongs->setCellWidget(row, 0, playLabel);
+        connect(playLabel_, &HoverLabel::clicked, this, [=](int row) {
+            // Дополнительные действия на клик
+            qDebug() << "Лейбл в строке" << row << "нажат!";
+        });
+
+        ui->tableWidgetSongs->setCellWidget(row, 0, playLabel_);
         ui->tableWidgetSongs->setItem(row, 1, new QTableWidgetItem(title));
         ui->tableWidgetSongs->setItem(row, 2, new QTableWidgetItem(artist));
         ui->tableWidgetSongs->setItem(row, 3, new QTableWidgetItem(duration));
     }
 
-    ui->tableWidgetSongs->setMouseTracking(true); // Обязательно для получения событий cellEntered
-    // Подключение события наведения мыши
+    ui->tableWidgetSongs->setMouseTracking(true);
     connect(ui->tableWidgetSongs, &QTableWidget::cellEntered, this, [=](int row) {
-        highlightDelegate->setHoveredRow(row); // устанавливаем подсветку для строки
+        highlightDelegate->setHoveredRow(row);
     });
 
     disableColomTable();
