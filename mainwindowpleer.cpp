@@ -1,7 +1,7 @@
 #include "mainwindowpleer.h"
 #include "./ui_mainwindowpleer.h"
 #include "HighlightDelegate.h"
-#include "HoverButton.h"
+#include "HoverLabel.h"
 #include <QMenu>
 #include <QMenuBar>
 #include <QAction>
@@ -352,32 +352,45 @@ void MainWindowPleer::addTrackInTable(const QStringList &files)
         int row = ui->tableWidgetSongs->rowCount();
         ui->tableWidgetSongs->insertRow(row);
 
-        // Добавляем кнопку Play для каждой строки
-        HoverButton *playButton = new HoverButton(i, this);
-        playButton->setFocusPolicy(Qt::NoFocus);
-        playButton->setStyleSheet("QPushButton { background: transparent; border: none; }");
+        // Создаем кастомный QLabel вместо кнопки
+        HoverLabel *playLabel = new HoverLabel(i, this);
+
+        // Загружаем иконку и настраиваем её
+        QPixmap playIcon(":/Icon/play.png");
+        QPainter painter(&playIcon);
+        painter.setCompositionMode(QPainter::CompositionMode_SourceIn);// Устанавливаем режим наложения SourceIn
+        painter.fillRect(playIcon.rect(), QColor("#8a9197")); // Заполняем весь pixmap цветом, указанным в iconColor
+        painter.end();
+        QPixmap scaledIcon = playIcon.scaled(20, 20, Qt::KeepAspectRatio, Qt::SmoothTransformation); // Масштабируем иконку
+        playLabel->setPixmap(scaledIcon);
+        playLabel->setAlignment(Qt::AlignCenter); // Выравниваем иконку по центру
+        playLabel->setFixedSize(24, 24); // Размер QLabel немного больше, чем у иконки
+
+        // Устанавливаем прозрачный фон
+        playLabel->setStyleSheet("QLabel { background: transparent; border: none; }");
 
         // Подключаем сигнал hover для подсветки строки
-        connect(playButton, &HoverButton::hovered, this, [=](int row) {
+        connect(playLabel, &HoverLabel::hovered, this, [=](int row) {
             highlightDelegate->setHoveredRow(row);
         });
 
-        // Кнопка по умолчанию имеет иконку play
-        updateIconColor(":/Icon/play.png", playButton, "#8a9197");
-
-        // Добавляем кнопку в таблицу в ячейку
-        ui->tableWidgetSongs->setCellWidget(row, 0, playButton);
+        // Добавляем QLabel в таблицу в ячейку
+        ui->tableWidgetSongs->setCellWidget(row, 0, playLabel);
         ui->tableWidgetSongs->setItem(row, 1, new QTableWidgetItem(title));
         ui->tableWidgetSongs->setItem(row, 2, new QTableWidgetItem(artist));
         ui->tableWidgetSongs->setItem(row, 3, new QTableWidgetItem(duration));
     }
+
     ui->tableWidgetSongs->setMouseTracking(true); // Обязательно для получения событий cellEntered
     // Подключение события наведения мыши
     connect(ui->tableWidgetSongs, &QTableWidget::cellEntered, this, [=](int row) {
-        highlightDelegate->setHoveredRow(row);//устанавливаем подсветку для строки
+        highlightDelegate->setHoveredRow(row); // устанавливаем подсветку для строки
     });
+
     disableColomTable();
 }
+
+
 
 void MainWindowPleer::loadCoverArt(const QString &filePath)
 {
