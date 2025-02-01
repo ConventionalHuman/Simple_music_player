@@ -33,6 +33,7 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         highlightdelegate.h
 
         HoverLabel.h
+        play.h play.cpp
 
 
 

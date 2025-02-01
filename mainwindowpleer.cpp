@@ -25,6 +25,7 @@
 #include <QtMultimedia/qmediametadata.h>
 #include <QStandardPaths>
 #include <QImage>
+// #include "play.h"
 
 MainWindowPleer::MainWindowPleer(QWidget *parent)
     : QMainWindow(parent)
@@ -173,6 +174,8 @@ MainWindowPleer::MainWindowPleer(QWidget *parent)
 
     // Фиксация размера framePleer
     ui->framePleer->setFixedSize(540, 476);
+    width_frame_ = ui->framePleer->width();
+    height_frame_ = ui->framePleer->height();
     // Устанавливаем стиль фрейма для остальных элементов
     ui->framePleer->setStyleSheet(
         "QFrame {"
@@ -281,7 +284,7 @@ MainWindowPleer::MainWindowPleer(QWidget *parent)
         "    width: 0px;"
         "}"
         );
-
+    connect(ui->pushButtonPlay, &QPushButton::clicked, this, &MainWindowPleer::buttonPlayClicked);
 }
 
 MainWindowPleer::~MainWindowPleer()
@@ -320,6 +323,14 @@ void MainWindowPleer::addTrackInTable(const QStringList &files)
 
     for (int i = 0; i < files.size(); ++i) {
         const QString &filePath = files.at(i);
+        if(i == 0){
+            play_stop = new Play(this);
+            first_tr_path = filePath;
+            play_stop->playCurTrack(filePath);
+            play_stop->loadCoverArt(filePath);
+            updateIconColor(":/Icon/pause.png",ui->pushButtonPlay, "#12cea4");
+            is_play_ = true;
+        }
 
         // Извлечение метаданных
         QMediaPlayer mediaPlayer;
@@ -378,7 +389,7 @@ void MainWindowPleer::addTrackInTable(const QStringList &files)
 
 
 
-void MainWindowPleer::loadCoverArt(const QString &filePath)
+/*void MainWindowPleer::loadCoverArt(const QString &filePath)
 {
     QMediaPlayer mediaPlayer;
     mediaPlayer.setSource(QUrl::fromLocalFile(filePath));
@@ -419,7 +430,7 @@ void MainWindowPleer::loadCoverArt(const QString &filePath)
         backgroundLabel_->setScaledContents(true); // Включаем масштабирование для картинки по умолчанию
     }
 }
-
+*/
 void MainWindowPleer::updateIconColor(const QString &iconPath, QPushButton *button, const QString &iconColor)
 {
     QPixmap pixmap(iconPath);
@@ -483,4 +494,17 @@ void MainWindowPleer::onExit() {
 
 void MainWindowPleer::onAbout() {
     QMessageBox::about(this, tr("О программе"), tr("Просто :) плеер на Qt."));
+}
+
+void MainWindowPleer::buttonPlayClicked()
+{
+    if(is_play_){
+        updateIconColor(":/Icon/play.png",ui->pushButtonPlay, "#12cea4");
+        play_stop->stopCurTrack();
+        is_play_ = false;
+    }else if(!is_play_){
+        updateIconColor(":/Icon/pause.png",ui->pushButtonPlay, "#12cea4");
+        play_stop->playCurTrack(first_tr_path);
+        is_play_ = true;
+    }
 }
