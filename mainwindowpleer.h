@@ -7,6 +7,8 @@
 #include <QLabel>
 #include "HoverLabel.h"
 #include "play.h"
+#include <deque>
+
 QT_BEGIN_NAMESPACE
 namespace Ui {
 class MainWindowPleer;
@@ -38,12 +40,15 @@ private:
     int width_frame_;
     int height_frame_;
     bool is_play_ = false;
-    Play *play_stop;
-    QString first_tr_path;
+    Play *play_stop = new Play(this,ui);
+    QString path_cur_track_;
+    std::deque <HoverLabel*> dq_lb;
 protected slots:
     void onOpen();
     void onExit();
     void onAbout();
     void buttonPlayClicked();
+    void sliderMoved(int position);
+
 };
 #endif // MAINWINDOWPLAYER_H

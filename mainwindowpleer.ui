@@ -169,7 +169,7 @@
              <item>
               <widget class="QLabel" name="labelTitle">
                <property name="text">
-                <string>In the End</string>
+                <string/>
                </property>
               </widget>
              </item>
@@ -219,7 +219,7 @@
              <item>
               <widget class="QLabel" name="labelArtist">
                <property name="text">
-                <string>Linkin Park</string>
+                <string/>
                </property>
               </widget>
              </item>

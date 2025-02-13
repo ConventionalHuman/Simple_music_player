@@ -284,7 +284,12 @@ MainWindowPleer::MainWindowPleer(QWidget *parent)
         "    width: 0px;"
         "}"
         );
-    connect(ui->pushButtonPlay, &QPushButton::clicked, this, &MainWindowPleer::buttonPlayClicked);
+        connect(ui->pushButtonPlay, &QPushButton::clicked, this, &MainWindowPleer::buttonPlayClicked);
+    // Подключаем перемещение слайдера к изменению позиции трека
+        connect(ui->horizontalSlider, &QSlider::sliderMoved, this, &MainWindowPleer::sliderMoved);
+        connect(ui->horizontalSlider, &QSlider::sliderPressed, this, [=](){
+            sliderMoved(ui->horizontalSlider->sliderPosition());
+        });
 }
 
 MainWindowPleer::~MainWindowPleer()
@@ -323,14 +328,6 @@ void MainWindowPleer::addTrackInTable(const QStringList &files)
 
     for (int i = 0; i < files.size(); ++i) {
         const QString &filePath = files.at(i);
-        if(i == 0){
-            play_stop = new Play(this);
-            first_tr_path = filePath;
-            play_stop->playCurTrack(filePath);
-            play_stop->loadCoverArt(filePath);
-            updateIconColor(":/Icon/pause.png",ui->pushButtonPlay, "#12cea4");
-            is_play_ = true;
-        }
 
         // Извлечение метаданных
         QMediaPlayer mediaPlayer;
@@ -363,74 +360,51 @@ void MainWindowPleer::addTrackInTable(const QStringList &files)
         // Устанавливаем прозрачный фон
         playLabel_->setStyleSheet("QLabel { background: transparent; border: none; }");
 
-        connect(playLabel_, &HoverLabel::hovered, this, [=](int row) {
-            highlightDelegate->setHoveredRow(row); // Обрабатываем подсветку строки
-            playLabel_->clearFocus();
-        });
+        // connect(playLabel_, &HoverLabel::hovered, this, [=](int row) {
+        //     highlightDelegate->setHoveredRow(row); // Обрабатываем подсветку строки
+        //     playLabel_->clearFocus();
+        // });
 
         connect(playLabel_, &HoverLabel::clicked, this, [=](int row) {
             // Дополнительные действия на клик
             qDebug() << "Лейбл в строке" << row << "нажат!";
+            highlightDelegate->setHoveredRow(row); // Обрабатываем подсветку строки
         });
 
         ui->tableWidgetSongs->setCellWidget(row, 0, playLabel_);
         ui->tableWidgetSongs->setItem(row, 1, new QTableWidgetItem(title));
         ui->tableWidgetSongs->setItem(row, 2, new QTableWidgetItem(artist));
         ui->tableWidgetSongs->setItem(row, 3, new QTableWidgetItem(duration));
+        dq_lb.push_back(playLabel_);
+        if(i == 0){
+            path_cur_track_ = filePath;
+            play_stop->playCurTrack(filePath);
+            play_stop->loadCoverArt(filePath);
+            updateIconColor(":/Icon/pause.png",ui->pushButtonPlay, "#12cea4");
+            highlightDelegate->setHoveredRow(0); // Обрабатываем подсветку строки
+            is_play_ = true;
+            if (!dq_lb.empty()) {
+                HoverLabel *firstLabel = dq_lb.front();  // Получаем указатель на первый элемент
+                QPixmap pause_icon(":/Icon/pause.png");
+                QPainter painter(&pause_icon);
+                painter.setCompositionMode(QPainter::CompositionMode_SourceIn);// Устанавливаем режим наложения SourceIn
+                painter.fillRect(pause_icon.rect(), QColor("#8a9197")); // Заполняем весь pixmap цветом, указанным в iconColor
+                painter.end();
+                firstLabel->setPixmap(pause_icon.scaled(24, 24, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+                firstLabel->setCurrentIcon(":/Icon/pause.png");
+            }
+        }
     }
 
-    ui->tableWidgetSongs->setMouseTracking(true);
-    connect(ui->tableWidgetSongs, &QTableWidget::cellEntered, this, [=](int row) {
-        highlightDelegate->setHoveredRow(row);
-    });
+
+    //ui->tableWidgetSongs->setMouseTracking(true);
+    // connect(ui->tableWidgetSongs, &QTableWidget::cellEntered, this, [=](int row) {
+    //     highlightDelegate->setHoveredRow(row);
+    // });
 
     disableColomTable();
 }
 
-
-
-/*void MainWindowPleer::loadCoverArt(const QString &filePath)
-{
-    QMediaPlayer mediaPlayer;
-    mediaPlayer.setSource(QUrl::fromLocalFile(filePath));
-
-    // Ожидание загрузки метаданных
-    QEventLoop loop;
-    connect(&mediaPlayer, &QMediaPlayer::metaDataChanged, &loop, &QEventLoop::quit);
-    mediaPlayer.play();
-    loop.exec();
-    mediaPlayer.stop();
-
-    // Извлекаем метаданные
-    QMediaMetaData metadata = mediaPlayer.metaData();
-
-    // Печатаем доступные метаданные для отладки
-    for (auto key : metadata.keys()) {
-        qDebug() << "Metadata key:" << key << "Value:" << metadata.value(key);
-    }
-
-    // Проверка наличия миниатюры (обложки)
-    QVariant thumbnailVariant = metadata.value(QMediaMetaData::ThumbnailImage);
-    if (thumbnailVariant.isValid()) {
-        QImage coverImage = thumbnailVariant.value<QImage>();
-        if (!coverImage.isNull()) {
-            qDebug() << "Cover art loaded successfully.";
-            QPixmap coverPixmap = QPixmap::fromImage(coverImage);
-            backgroundLabel_->setPixmap(coverPixmap);
-            backgroundLabel_->setAlignment(Qt::AlignCenter);
-            backgroundLabel_->setScaledContents(true); // Включаем масштабирование
-            backgroundLabel_->setGeometry(0, 0, ui->framePleer->width(), ui->framePleer->height());
-        } else {
-            qDebug() << "Cover art is null.";
-        }
-    } else {
-        qDebug() << "No cover art found.";
-        backgroundLabel_->setPixmap(QPixmap(":/Images/jinx.jpg"));
-        backgroundLabel_->setAlignment(Qt::AlignCenter);
-        backgroundLabel_->setScaledContents(true); // Включаем масштабирование для картинки по умолчанию
-    }
-}
-*/
 void MainWindowPleer::updateIconColor(const QString &iconPath, QPushButton *button, const QString &iconColor)
 {
     QPixmap pixmap(iconPath);
@@ -484,7 +458,6 @@ void MainWindowPleer::onOpen() {
     ui->tableWidgetSongs->setColumnHidden(1,false);
     ui->tableWidgetSongs->setColumnHidden(2,false);
     addTrackInTable(fullPaths); // Передаем список файлов в метод
-    //loadCoverArt(":/Path/to/Music/Faint.mp3");
 }
 
 
@@ -504,7 +477,11 @@ void MainWindowPleer::buttonPlayClicked()
         is_play_ = false;
     }else if(!is_play_){
         updateIconColor(":/Icon/pause.png",ui->pushButtonPlay, "#12cea4");
-        play_stop->playCurTrack(first_tr_path);
+        play_stop->playCurTrack(path_cur_track_);
         is_play_ = true;
     }
+}
+void MainWindowPleer::sliderMoved(int position)
+{
+    play_stop->sliderMoved(position);
 }

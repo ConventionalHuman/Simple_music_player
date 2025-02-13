@@ -10,13 +10,16 @@ class HoverLabel : public QLabel {
 
 public:
     explicit HoverLabel(int row, QWidget *parent = nullptr)
-        : QLabel(parent), m_row(row), currentIcon(":/Icon/play.png") {
-        QPixmap play_icon(currentIcon);
+        : QLabel(parent), m_row(row), currentIcon_(":/Icon/play.png") {
+        QPixmap play_icon(currentIcon_);
         QPainter painter(&play_icon);
         painter.setCompositionMode(QPainter::CompositionMode_SourceIn);// Устанавливаем режим наложения SourceIn
         painter.fillRect(play_icon.rect(), QColor("#8a9197")); // Заполняем весь pixmap цветом, указанным в iconColor
         painter.end();
         setPixmap(play_icon.scaled(24, 24, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+    }
+    void setCurrentIcon(QString currentIcone){
+        currentIcon_ = currentIcone;
     }
 
 signals:
@@ -39,16 +42,16 @@ protected:
 
 private:
     int m_row;                  // Номер строки, к которой привязан QLabel
-    QString currentIcon;        // Текущая иконка
+    QString currentIcon_;        // Текущая иконка
 
     void toggleIcon() {
         // Меняем иконку при клике
-        if (currentIcon == ":/Icon/play.png") {
-            currentIcon = ":/Icon/pause.png";
+        if (currentIcon_ == ":/Icon/play.png") {
+            currentIcon_ = ":/Icon/pause.png";
         } else {
-            currentIcon = ":/Icon/play.png";
+            currentIcon_ = ":/Icon/play.png";
         }
-        QPixmap play_icon(currentIcon);
+        QPixmap play_icon(currentIcon_);
         QPainter painter(&play_icon);
         painter.setCompositionMode(QPainter::CompositionMode_SourceIn);// Устанавливаем режим наложения SourceIn
         painter.fillRect(play_icon.rect(), QColor("#8a9197")); // Заполняем весь pixmap цветом, указанным в iconColor
