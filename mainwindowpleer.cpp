@@ -369,6 +369,9 @@ void MainWindowPleer::addTrackInTable(const QStringList &files)
             // Дополнительные действия на клик
             qDebug() << "Лейбл в строке" << row << "нажат!";
             highlightDelegate->setHoveredRow(row); // Обрабатываем подсветку строки
+            path_cur_track_ = files.at(row);
+            play_stop->loadCoverArt(path_cur_track_);
+            buttonPlayClicked();
         });
 
         ui->tableWidgetSongs->setCellWidget(row, 0, playLabel_);
@@ -378,8 +381,8 @@ void MainWindowPleer::addTrackInTable(const QStringList &files)
         dq_lb.push_back(playLabel_);
         if(i == 0){
             path_cur_track_ = filePath;
-            play_stop->playCurTrack(filePath);
-            play_stop->loadCoverArt(filePath);
+            play_stop->playCurTrack(path_cur_track_);
+            play_stop->loadCoverArt(path_cur_track_);
             updateIconColor(":/Icon/pause.png",ui->pushButtonPlay, "#12cea4");
             highlightDelegate->setHoveredRow(0); // Обрабатываем подсветку строки
             is_play_ = true;

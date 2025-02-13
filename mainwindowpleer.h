@@ -26,7 +26,6 @@ public:
     void addTrackInTable(const QStringList &files);
     void updateIconColor(const QString &iconPath, QPushButton *button, const QString &iconColor);
     void initializeDatabase();//class DbMp
-    //void loadCoverArt(const QString &filePath);//class Play
     QLabel *backgroundLabel_;
     int getFrameWidth(){
         return width_frame_;
